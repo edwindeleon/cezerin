@@ -1,10 +1,6 @@
 const ObjectID = require('mongodb').ObjectID;
 
-const getString = (value) => {
-  return value
-    ? value.toString()
-    : '';
-}
+const getString = value => (value || '').toString();
 
 const getDateIfValid = (value) => {
   const date = Date.parse(value);
@@ -19,16 +15,21 @@ const getArrayIfValid = (value) => {
     : null;
 }
 
-const getNumberIfValid = (value) => {
-  const n = parseFloat(value);
-  return n
-    ? n
-    : null;
+const getArrayOfObjectID = (value) => {
+  if(Array.isArray(value) && value.length > 0) {
+    return value.map(id => getObjectIDIfValid(id)).filter(id => !!id);
+  } else {
+    return [];
+  }
 }
 
+const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value);
+
+const getNumberIfValid = value => isNumber(value) ? parseFloat(value) : null;
+
 const getNumberIfPositive = (value) => {
-  const n = parseFloat(value);
-  return n >= 0
+  const n = getNumberIfValid(value);
+  return n && n >= 0
     ? n
     : null;
 }
@@ -141,6 +142,7 @@ module.exports = {
   getObjectIDIfValid: getObjectIDIfValid,
   getDateIfValid: getDateIfValid,
   getArrayIfValid: getArrayIfValid,
+  getArrayOfObjectID: getArrayOfObjectID,
   getNumberIfValid: getNumberIfValid,
   getNumberIfPositive: getNumberIfPositive,
   getBooleanIfValid: getBooleanIfValid,
